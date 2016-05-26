@@ -121,6 +121,22 @@
         context.fill();
       };
 
+      for (var i = 0; i < 1000000; ++i) {
+        var x = minX + width * Math.random();
+        var y = minY + height * Math.random();
+        target = [x, y];
+        input[0] = Math.sqrt(x * x + y * y);
+        input[1] = Math.atan(y / x);
+        if (x < 0) {
+          input[1] += Math.PI;
+        }
+        if (y < 0 && x > 0) {
+          input[1] += 2 * Math.PI;
+        }
+        compute();
+        learn();
+      }
+
       update();
 
       canvas.addEventListener('mousemove', function (event) {
@@ -133,9 +149,10 @@
         if (x < 0) {
           input[1] += Math.PI;
         }
-        console.log(input);
+        if (y < 0 && x > 0) {
+          input[1] += 2 * Math.PI;
+        }
         compute();
-        learn();
 
         update();
       });
