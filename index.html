@@ -7,5 +7,138 @@
 
   <body>
     <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+      var n = 40;
+      var learningRate = 0.01;
+
+      var synone = [];
+      for (var i = 0; i < 2; ++i) {
+        synone[i] = [];
+        for (var j = 0; j < n; ++j) {
+          synone[i][j] = Math.random() * 0.1;
+        }
+      }
+
+      var syntwo = [];
+      for (var i = 0; i < n; ++i) {
+        syntwo[i] = [];
+        for (var j = 0; j < 2; ++j) {
+          syntwo[i][j] = Math.random() * 0.1;
+        }
+      }
+
+      var input = [0, 0];
+      var output = [0, 0];
+      var target = [0, 0];
+      var error = [0, 0];
+      var medin = [];
+      var medout = [];
+
+      var compute = function () {
+        for (var i = 0; i < n; ++i) {
+          medin[i] = 0;
+          for (var j = 0; j < 2; ++j) {
+            medin[i] += synone[j][i] * input[j];
+          }
+          medout[i] = Math.tanh(medin[i]);
+        }
+
+        for (var i = 0; i < 2; ++i) {
+          output[i] = 0;
+          for (var j = 0; j < n; ++j) {
+            output[i] += syntwo[j][i] * medout[j];
+          }
+          error[i] = target[i] - output[i];
+        }
+      };
+
+      var learn = function () {
+        for (var i = 0; i < 2; ++i) {
+          for (var j = 0; j < n; ++j) {
+            syntwo[j][i] += learningRate * medout[j] * error[i];
+          }
+        }
+
+        var sigma = [];
+        var sigmoid = [];
+        for (var i = 0; i < n; ++i) {
+          sigma[i] = 0;
+          for (var j = 0; j < 2; ++j) {
+            sigma[i] += error[j] * syntwo[i][j];
+          }
+          sigmoid[i] = 1 - (medout[i] * medout[i]);
+        }
+
+        for (var i = 0; i < 2; ++i) {
+          for (var j = 0; j < n; ++j) {
+            var delta = learningRate * sigmoid[j] * sigma[j] * input[i];
+            synone[i][j] += delta;
+          }
+        }
+      };
+
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+
+      var minX = -1;
+      var minY = -1;
+      var maxX = 1;
+      var maxY = 1;
+
+      var width = maxX - minX;
+      var height = maxY - minY;
+
+      var xScale = canvas.width / width;
+      var yScale = canvas.height / height;
+
+      var lineWidth = 1;
+
+      context.scale(xScale, yScale);
+      context.translate(-minX, -minY);
+      context.lineWidth = lineWidth / xScale;
+
+      var update = function () {
+        context.clearRect(minX, minY, width, height);
+
+        context.strokeStyle = 'red';
+
+        context.setLineDash([0.01, 0.03]);
+        context.beginPath();
+        context.arc(0, 0, 1, 0, Math.PI * 2);
+        context.stroke();
+
+        context.setLineDash([]);
+        context.beginPath();
+        context.moveTo(minX, 0);
+        context.lineTo(maxX, 0);
+        context.moveTo(0, minY);
+        context.lineTo(0, maxY);
+        context.stroke();
+
+        context.strokeStyle = 'black';
+        context.beginPath();
+        context.arc(output[0], output[1], 0.05, 0, Math.PI * 2);
+        context.fill();
+      };
+
+      update();
+
+      canvas.addEventListener('mousemove', function (event) {
+        var rect = canvas.getBoundingClientRect();
+        var x = minX + (event.clientX - rect.left) / xScale;
+        var y = minY + (event.clientY - rect.top) / yScale;
+        target = [x, y];
+        input[0] = Math.sqrt(x * x + y * y);
+        input[1] = Math.atan(y / x);
+        if (x < 0) {
+          input[1] += Math.PI;
+        }
+        console.log(input);
+        compute();
+        learn();
+
+        update();
+      });
+    </script>
   </body>
 </html>
