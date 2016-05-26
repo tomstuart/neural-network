@@ -12,7 +12,7 @@
       var learningRate = 0.01;
 
       var synone = [];
-      for (var i = 0; i < 2; ++i) {
+      for (var i = 0; i < 3; ++i) {
         synone[i] = [];
         for (var j = 0; j < n; ++j) {
           synone[i][j] = Math.random() * 0.1;
@@ -27,7 +27,7 @@
         }
       }
 
-      var input = [0, 0];
+      var input = [0, 0, 2];
       var output = [0, 0];
       var target = [0, 0];
       var error = [0, 0];
@@ -37,7 +37,7 @@
       var compute = function () {
         for (var i = 0; i < n; ++i) {
           medin[i] = 0;
-          for (var j = 0; j < 2; ++j) {
+          for (var j = 0; j < 3; ++j) {
             medin[i] += synone[j][i] * input[j];
           }
           medout[i] = Math.tanh(medin[i]);
@@ -69,7 +69,7 @@
           sigmoid[i] = 1 - (medout[i] * medout[i]);
         }
 
-        for (var i = 0; i < 2; ++i) {
+        for (var i = 0; i < 3; ++i) {
           for (var j = 0; j < n; ++j) {
             var delta = learningRate * sigmoid[j] * sigma[j] * input[i];
             synone[i][j] += delta;
