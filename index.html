@@ -76,23 +76,32 @@
         context.fill();
       };
 
+      var trainingSet = [];
+      for (var i = 0; i < iterationsPerFrame; ++i) {
+        while (true) {
+          rectangular = {
+            x: minX + width * Math.random(),
+            y: minY + height * Math.random()
+          }
+
+          if (rectangular.x * rectangular.x + rectangular.y * rectangular.y <= 1) {
+            break;
+          }
+        };
+
+        trainingSet[i] = {
+          rectangular: rectangular,
+          polar: rectangularToPolar(rectangular)
+        };
+      };
+
       var update = function () {
         drawBackground();
 
-        for (var i = 0; i < iterationsPerFrame; ++i) {
-          var rectangular;
-
-          while (true) {
-            rectangular = {
-              x: minX + width * Math.random(),
-              y: minY + height * Math.random()
-            }
-
-            if (rectangular.x * rectangular.x + rectangular.y * rectangular.y <= 1) {
-              break;
-            }
-          };
-          var polar = rectangularToPolar(rectangular);
+        for (var i = 0; i < trainingSet.length; ++i) {
+          var element = trainingSet[i];
+          var rectangular = element.rectangular;
+          var polar = element.polar;
 
           neuralNetwork.compute(polar.magnitude, polar.angle);
           neuralNetwork.learn(rectangular.x, rectangular.y);
