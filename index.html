@@ -3,79 +3,13 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <script src="neural_network.js"></script>
   </head>
 
   <body>
     <canvas id="canvas" width="500" height="500"></canvas>
     <script>
-      var n = 40;
-      var learningRate = 0.01;
-
-      var synone = [];
-      for (var i = 0; i < 3; ++i) {
-        synone[i] = [];
-        for (var j = 0; j < n; ++j) {
-          synone[i][j] = Math.random() * 0.1;
-        }
-      }
-
-      var syntwo = [];
-      for (var i = 0; i < n; ++i) {
-        syntwo[i] = [];
-        for (var j = 0; j < 2; ++j) {
-          syntwo[i][j] = Math.random() * 0.1;
-        }
-      }
-
-      var input = [0, 0, 2];
-      var output = [0, 0];
-      var target = [0, 0];
-      var error = [0, 0];
-      var medin = [];
-      var medout = [];
-
-      var compute = function () {
-        for (var i = 0; i < n; ++i) {
-          medin[i] = 0;
-          for (var j = 0; j < 3; ++j) {
-            medin[i] += synone[j][i] * input[j];
-          }
-          medout[i] = Math.tanh(medin[i]);
-        }
-
-        for (var i = 0; i < 2; ++i) {
-          output[i] = 0;
-          for (var j = 0; j < n; ++j) {
-            output[i] += syntwo[j][i] * medout[j];
-          }
-          error[i] = target[i] - output[i];
-        }
-      };
-
-      var learn = function () {
-        for (var i = 0; i < 2; ++i) {
-          for (var j = 0; j < n; ++j) {
-            syntwo[j][i] += learningRate * medout[j] * error[i];
-          }
-        }
-
-        var sigma = [];
-        var sigmoid = [];
-        for (var i = 0; i < n; ++i) {
-          sigma[i] = 0;
-          for (var j = 0; j < 2; ++j) {
-            sigma[i] += error[j] * syntwo[i][j];
-          }
-          sigmoid[i] = 1 - (medout[i] * medout[i]);
-        }
-
-        for (var i = 0; i < 3; ++i) {
-          for (var j = 0; j < n; ++j) {
-            var delta = learningRate * sigmoid[j] * sigma[j] * input[i];
-            synone[i][j] += delta;
-          }
-        }
-      };
+      var neuralNetwork = new NeuralNetwork();
 
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
@@ -117,24 +51,25 @@
 
         context.strokeStyle = 'black';
         context.beginPath();
-        context.arc(output[0], output[1], 0.05, 0, Math.PI * 2);
+        context.arc(neuralNetwork.output[0], neuralNetwork.output[1], 0.05, 0, Math.PI * 2);
         context.fill();
       };
 
       for (var i = 0; i < 1000000; ++i) {
         var x = minX + width * Math.random();
         var y = minY + height * Math.random();
-        target = [x, y];
-        input[0] = Math.sqrt(x * x + y * y);
-        input[1] = Math.atan(y / x);
+
+        magnitude = Math.sqrt(x * x + y * y);
+        angle = Math.atan(y / x);
         if (x < 0) {
-          input[1] += Math.PI;
+          angle += Math.PI;
         }
         if (y < 0 && x > 0) {
-          input[1] += 2 * Math.PI;
+          angle += 2 * Math.PI;
         }
-        compute();
-        learn();
+
+        neuralNetwork.compute(magnitude, angle);
+        neuralNetwork.learn(x, y);
       }
 
       update();
@@ -143,16 +78,17 @@
         var rect = canvas.getBoundingClientRect();
         var x = minX + (event.clientX - rect.left) / xScale;
         var y = minY + (event.clientY - rect.top) / yScale;
-        target = [x, y];
-        input[0] = Math.sqrt(x * x + y * y);
-        input[1] = Math.atan(y / x);
+
+        magnitude = Math.sqrt(x * x + y * y);
+        angle = Math.atan(y / x);
         if (x < 0) {
-          input[1] += Math.PI;
+          angle += Math.PI;
         }
         if (y < 0 && x > 0) {
-          input[1] += 2 * Math.PI;
+          angle += 2 * Math.PI;
         }
-        compute();
+
+        neuralNetwork.compute(magnitude, angle);
 
         update();
       });
