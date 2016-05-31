@@ -31,6 +31,20 @@
       context.translate(-minX, -minY);
       context.lineWidth = lineWidth / xScale;
 
+      var rectangularToPolar = function (p) {
+        magnitude = Math.sqrt(p.x * p.x + p.y * p.y);
+        angle = Math.atan(p.y / p.x);
+
+        if (p.x < 0) {
+          angle += Math.PI;
+        }
+        if (p.y < 0 && p.x > 0) {
+          angle += 2 * Math.PI;
+        }
+
+        return { magnitude: magnitude, angle: angle };
+      };
+
       var update = function () {
         context.clearRect(minX, minY, width, height);
 
@@ -56,39 +70,27 @@
       };
 
       for (var i = 0; i < 1000000; ++i) {
-        var x = minX + width * Math.random();
-        var y = minY + height * Math.random();
+        var rectangular = {
+          x: minX + width * Math.random(),
+          y: minY + height * Math.random()
+        };
+        var polar = rectangularToPolar(rectangular);
 
-        magnitude = Math.sqrt(x * x + y * y);
-        angle = Math.atan(y / x);
-        if (x < 0) {
-          angle += Math.PI;
-        }
-        if (y < 0 && x > 0) {
-          angle += 2 * Math.PI;
-        }
-
-        neuralNetwork.compute(magnitude, angle);
-        neuralNetwork.learn(x, y);
+        neuralNetwork.compute(polar.magnitude, polar.angle);
+        neuralNetwork.learn(rectangular.x, rectangular.y);
       }
 
       update();
 
       canvas.addEventListener('mousemove', function (event) {
         var rect = canvas.getBoundingClientRect();
-        var x = minX + (event.clientX - rect.left) / xScale;
-        var y = minY + (event.clientY - rect.top) / yScale;
+        var rectangular = {
+          x: minX + (event.clientX - rect.left) / xScale,
+          y: minY + (event.clientY - rect.top) / yScale
+        };
+        var polar = rectangularToPolar(rectangular);
 
-        magnitude = Math.sqrt(x * x + y * y);
-        angle = Math.atan(y / x);
-        if (x < 0) {
-          angle += Math.PI;
-        }
-        if (y < 0 && x > 0) {
-          angle += 2 * Math.PI;
-        }
-
-        neuralNetwork.compute(magnitude, angle);
+        neuralNetwork.compute(polar.magnitude, polar.angle);
 
         update();
       });
