@@ -45,7 +45,7 @@
       var xScale = canvas.width / width;
       var yScale = canvas.height / height;
 
-      var lineWidth = 1;
+      var lineWidth = 1.5;
 
       context.scale(xScale, yScale);
       context.translate(-minX, -minY);
@@ -135,7 +135,7 @@
             neuralNetwork.learn(rectangular.x, rectangular.y);
           }
 
-          drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1], 0.01, 'black');
+          drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1], 0.01, 'rgba(0, 0, 0, 0.5)');
         }
 
         if (mouse) {
