@@ -1,6 +1,6 @@
 var NeuralNetwork = function () {
   this.n = 40;
-  this.learningRate = 0.01;
+  this.learningRate = 0.001;
 
   this.synone = [];
   for (var i = 0; i < 3; ++i) {
