@@ -14,6 +14,9 @@
   <body>
     <canvas id="canvas" width="500" height="500"></canvas>
     <p>
+      <button id="toggle-training">Start training</button>
+    </p>
+    <p>
       <button id="reset-neural-network">Reset neural network</button>
     </p>
     <p>
@@ -26,6 +29,7 @@
     <script>
       var neuralNetwork = new NeuralNetwork();
       var iterationsPerFrame = document.getElementById('iterations-per-frame').value;
+      var training = false;
 
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
@@ -126,7 +130,9 @@
           var polar = element.polar;
 
           neuralNetwork.compute(polar.magnitude, polar.angle);
-          neuralNetwork.learn(rectangular.x, rectangular.y);
+          if (training) {
+            neuralNetwork.learn(rectangular.x, rectangular.y);
+          }
 
           drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1]);
         }
@@ -135,6 +141,16 @@
       };
 
       update();
+
+      document.getElementById('toggle-training').addEventListener('click', function (event) {
+        training = !training;
+
+        if (training) {
+          event.target.textContent = 'Stop training';
+        } else {
+          event.target.textContent = 'Start training';
+        }
+      });
 
       document.getElementById('reset-neural-network').addEventListener('click', function () {
         neuralNetwork = new NeuralNetwork();
