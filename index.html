@@ -21,14 +21,13 @@
     </p>
     <p>
       <form id="training-set">
-        <input id="iterations-per-frame" type="text" value="1000">
+        <input id="training-set-size" type="text" value="1000">
         <button id="new-training-set">New training set</button>
       </form>
     </p>
 
     <script>
       var neuralNetwork = new NeuralNetwork();
-      var iterationsPerFrame = document.getElementById('iterations-per-frame').value;
       var training = false;
 
       var canvas = document.getElementById('canvas');
@@ -119,7 +118,7 @@
         return trainingSet;
       };
 
-      var trainingSet = generateTrainingSet(iterationsPerFrame);
+      var trainingSet = generateTrainingSet(document.getElementById('training-set-size').value);
 
       var update = function () {
         drawBackground();
@@ -158,8 +157,7 @@
 
       document.getElementById('training-set').addEventListener('submit', function (event) {
         event.preventDefault();
-        iterationsPerFrame = document.getElementById('iterations-per-frame').value;
-        trainingSet = generateTrainingSet(iterationsPerFrame);
+        trainingSet = generateTrainingSet(document.getElementById('training-set-size').value);
       });
     </script>
   </body>
