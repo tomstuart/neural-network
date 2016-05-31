@@ -14,6 +14,9 @@
   <body>
     <canvas id="canvas" width="500" height="500"></canvas>
     <p>
+      Average error: <span id="error"></span>
+    </p>
+    <p>
       <button id="toggle-training">Start training</button>
     </p>
     <p>
@@ -125,6 +128,8 @@
       var update = function () {
         drawBackground();
 
+        var error = 0;
+
         for (var i = 0; i < trainingSet.length; ++i) {
           var element = trainingSet[i];
           var rectangular = element.rectangular;
@@ -135,8 +140,15 @@
             neuralNetwork.learn(rectangular.x, rectangular.y);
           }
 
+          var errorX = neuralNetwork.output[0] - rectangular.x;
+          var errorY = neuralNetwork.output[1] - rectangular.y;
+          error += Math.sqrt(errorX * errorX + errorY * errorY);
+
           drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1], 0.01, 'rgba(0, 0, 0, 0.5)');
         }
+
+        error = error / trainingSet.length;
+        document.getElementById('error').textContent = error.toFixed(5);
 
         if (mouse) {
           neuralNetwork.compute(mouse.polar.magnitude, mouse.polar.angle);
