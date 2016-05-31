@@ -4,13 +4,23 @@
   <head>
     <meta charset="utf-8">
     <script src="neural_network.js"></script>
+    <style>
+      canvas {
+        float: left;
+      }
+    </style>
   </head>
 
   <body>
     <canvas id="canvas" width="500" height="500"></canvas>
+    <p>
+      <input id="iterations-per-frame" type="text" value="1000">
+      <button id="new-training-set">New training set</button>
+    </p>
+
     <script>
       var neuralNetwork = new NeuralNetwork();
-      var iterationsPerFrame = 1000;
+      var iterationsPerFrame = document.getElementById('iterations-per-frame').value;
 
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
@@ -76,24 +86,31 @@
         context.fill();
       };
 
-      var trainingSet = [];
-      for (var i = 0; i < iterationsPerFrame; ++i) {
-        while (true) {
-          rectangular = {
-            x: minX + width * Math.random(),
-            y: minY + height * Math.random()
-          }
+      var generateTrainingSet = function (size) {
+        var trainingSet = [];
 
-          if (rectangular.x * rectangular.x + rectangular.y * rectangular.y <= 1) {
-            break;
-          }
+        for (var i = 0; i < size; ++i) {
+          while (true) {
+            rectangular = {
+              x: minX + width * Math.random(),
+              y: minY + height * Math.random()
+            }
+
+            if (rectangular.x * rectangular.x + rectangular.y * rectangular.y <= 1) {
+              break;
+            }
+          };
+
+          trainingSet[i] = {
+            rectangular: rectangular,
+            polar: rectangularToPolar(rectangular)
+          };
         };
 
-        trainingSet[i] = {
-          rectangular: rectangular,
-          polar: rectangularToPolar(rectangular)
-        };
+        return trainingSet;
       };
+
+      var trainingSet = generateTrainingSet(iterationsPerFrame);
 
       var update = function () {
         drawBackground();
@@ -113,6 +130,11 @@
       };
 
       update();
+
+      document.getElementById('new-training-set').addEventListener('click', function () {
+        iterationsPerFrame = document.getElementById('iterations-per-frame').value;
+        trainingSet = generateTrainingSet(iterationsPerFrame);
+      });
     </script>
   </body>
 </html>
