@@ -45,7 +45,7 @@
         return { magnitude: magnitude, angle: angle };
       };
 
-      var update = function () {
+      var drawBackground = function () {
         context.clearRect(minX, minY, width, height);
 
         context.strokeStyle = 'red';
@@ -62,7 +62,9 @@
         context.moveTo(0, minY);
         context.lineTo(0, maxY);
         context.stroke();
+      };
 
+      var drawOutput = function () {
         context.strokeStyle = 'black';
         context.beginPath();
         context.arc(neuralNetwork.output[0], neuralNetwork.output[1], 0.05, 0, Math.PI * 2);
@@ -80,7 +82,7 @@
         neuralNetwork.learn(rectangular.x, rectangular.y);
       }
 
-      update();
+      drawBackground();
 
       canvas.addEventListener('mousemove', function (event) {
         var rect = canvas.getBoundingClientRect();
@@ -92,7 +94,8 @@
 
         neuralNetwork.compute(polar.magnitude, polar.angle);
 
-        update();
+        drawBackground();
+        drawOutput();
       });
     </script>
   </body>
