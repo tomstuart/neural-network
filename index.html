@@ -10,6 +10,7 @@
     <canvas id="canvas" width="500" height="500"></canvas>
     <script>
       var neuralNetwork = new NeuralNetwork();
+      var iterationsPerFrame = 1000;
 
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
@@ -64,39 +65,45 @@
         context.stroke();
       };
 
-      var drawOutput = function () {
+      var drawOutput = function (expectedX, expectedY, actualX, actualY) {
         context.strokeStyle = 'black';
         context.beginPath();
-        context.arc(neuralNetwork.output[0], neuralNetwork.output[1], 0.05, 0, Math.PI * 2);
+        context.moveTo(expectedX, expectedY);
+        context.lineTo(actualX, actualY);
+        context.stroke();
+        context.beginPath();
+        context.arc(actualX, actualY, 0.01, 0, Math.PI * 2);
         context.fill();
       };
 
-      for (var i = 0; i < 1000000; ++i) {
-        var rectangular = {
-          x: minX + width * Math.random(),
-          y: minY + height * Math.random()
-        };
-        var polar = rectangularToPolar(rectangular);
-
-        neuralNetwork.compute(polar.magnitude, polar.angle);
-        neuralNetwork.learn(rectangular.x, rectangular.y);
-      }
-
-      drawBackground();
-
-      canvas.addEventListener('mousemove', function (event) {
-        var rect = canvas.getBoundingClientRect();
-        var rectangular = {
-          x: minX + (event.clientX - rect.left) / xScale,
-          y: minY + (event.clientY - rect.top) / yScale
-        };
-        var polar = rectangularToPolar(rectangular);
-
-        neuralNetwork.compute(polar.magnitude, polar.angle);
-
+      var update = function () {
         drawBackground();
-        drawOutput();
-      });
+
+        for (var i = 0; i < iterationsPerFrame; ++i) {
+          var rectangular;
+
+          while (true) {
+            rectangular = {
+              x: minX + width * Math.random(),
+              y: minY + height * Math.random()
+            }
+
+            if (rectangular.x * rectangular.x + rectangular.y * rectangular.y <= 1) {
+              break;
+            }
+          };
+          var polar = rectangularToPolar(rectangular);
+
+          neuralNetwork.compute(polar.magnitude, polar.angle);
+          neuralNetwork.learn(rectangular.x, rectangular.y);
+
+          drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1]);
+        }
+
+        window.requestAnimationFrame(update);
+      };
+
+      update();
     </script>
   </body>
 </html>
