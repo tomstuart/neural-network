@@ -29,6 +29,7 @@
     <script>
       var neuralNetwork = new NeuralNetwork();
       var training = false;
+      var mouse = null;
 
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
@@ -83,14 +84,15 @@
         context.stroke();
       };
 
-      var drawOutput = function (expectedX, expectedY, actualX, actualY) {
-        context.strokeStyle = 'black';
+      var drawOutput = function (expectedX, expectedY, actualX, actualY, radius, colour) {
+        context.strokeStyle = colour;
+        context.fillStyle = colour;
         context.beginPath();
         context.moveTo(expectedX, expectedY);
         context.lineTo(actualX, actualY);
         context.stroke();
         context.beginPath();
-        context.arc(actualX, actualY, 0.01, 0, Math.PI * 2);
+        context.arc(actualX, actualY, radius, 0, Math.PI * 2);
         context.fill();
       };
 
@@ -133,7 +135,12 @@
             neuralNetwork.learn(rectangular.x, rectangular.y);
           }
 
-          drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1]);
+          drawOutput(rectangular.x, rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1], 0.01, 'black');
+        }
+
+        if (mouse) {
+          neuralNetwork.compute(mouse.polar.magnitude, mouse.polar.angle);
+          drawOutput(mouse.rectangular.x, mouse.rectangular.y, neuralNetwork.output[0], neuralNetwork.output[1], 0.03, 'red');
         }
 
         window.requestAnimationFrame(update);
@@ -158,6 +165,21 @@
       document.getElementById('training-set').addEventListener('submit', function (event) {
         event.preventDefault();
         trainingSet = generateTrainingSet(document.getElementById('training-set-size').value);
+      });
+
+      canvas.addEventListener('mousemove', function (event) {
+        var rect = canvas.getBoundingClientRect();
+        var rectangular = {
+          x: minX + (event.clientX - rect.left) / xScale,
+          y: minY + (event.clientY - rect.top) / yScale
+        };
+        var polar = rectangularToPolar(rectangular);
+
+        mouse = { rectangular: rectangular, polar: polar };
+      });
+
+      canvas.addEventListener('mouseleave', function () {
+        mouse = null;
       });
     </script>
   </body>
